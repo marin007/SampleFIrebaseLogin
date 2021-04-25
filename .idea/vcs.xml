@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/../Demo_List_Tweets" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../MoviesApp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../NFCReader" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../android-compose-codelabs" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../electric" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../sotrad-water" vcs="Git" />
+  </component>
+</project>

@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">SimpleLoginAppWithFirebase</string>
+    <string name="scopic">Scopic</string>
+    <string name="error_network">You have no internet connection!</string>
+    <string name="login_error_invalid_email">The email is invalid!</string>
+    <string name="login_error_invalid_password">The password does not meet the requirements!</string>
+    <string name="empty_collection">Empty Collection!</string>
+    <string name="missing_email">The email is missing!</string>
+    <string name="success_user_create">You have successfully sing up!</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sing_up">Sign Up</string>
+    <string name="have_an_account">Have an account?</string>
+    <string name="your_email_address">Your email address</string>
+    <string name="list">List</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="back">Back</string>
+    <string name="profile">Profile</string>
+    <string name="enter_a_item_description">Enter an item description</string>
+    <string name="characters_left">characters left:</string>
+    <string name="_0">0</string>
+    <string name="_40">/40</string>
+    <string name="save">Save</string>
+    <string name="hi_there_nice_to_see_tou">Hi there! Nice to see tou.</string>
+    <string name="welcome">Welcome</string>
+
+</resources>
