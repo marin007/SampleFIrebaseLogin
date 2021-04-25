@@ -35,22 +35,20 @@ class SignUpViewModel(
             return
         }
         if (!isEmailValid(user.email)) {
-            event.value = ValueWrapper(
-                Event.ValidationError(
-                    stringProvider.getString(
-                        R.string.login_error_invalid_email
-                    )
+            uiState.value = UiState.ValidationError(
+                stringProvider.getString(
+                    R.string.login_error_invalid_email
                 )
             )
+
             return
         } else if (!isPasswordValid(password)) {
-            event.value = ValueWrapper(
-                Event.ValidationError(
-                    stringProvider.getString(
-                        R.string.login_error_invalid_password
-                    )
+            uiState.value = UiState.ValidationError(
+                stringProvider.getString(
+                    R.string.login_error_invalid_password
                 )
             )
+
             return
         } else {
             uiState.value = UiState.Loading
@@ -109,12 +107,11 @@ class SignUpViewModel(
 
     sealed class UiState {
         object Loading : UiState()
+        data class ValidationError(val message: String) : UiState()
     }
 
     sealed class Event {
-        data class ShowMissingValuesError(val error: String) : Event()
         data class Error(val message: String) : Event()
-        data class ValidationError(val message: String) : Event()
         data class UserCreatedSuccess(val message: String) : Event()
     }
 }

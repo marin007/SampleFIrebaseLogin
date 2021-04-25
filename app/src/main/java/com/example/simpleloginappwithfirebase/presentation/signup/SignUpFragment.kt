@@ -28,6 +28,10 @@ class SignUpFragment : BaseFragment<SignUpFragmentBinding, SignUpViewModel>() {
         viewModel.uiState.observe(this, { uiState ->
             when (uiState) {
                 is SignUpViewModel.UiState.Loading -> showLoading()
+                is SignUpViewModel.UiState.ValidationError -> showErrorToast(
+                    secureContext,
+                    uiState.message
+                )
             }
         })
     }
@@ -41,13 +45,7 @@ class SignUpFragment : BaseFragment<SignUpFragmentBinding, SignUpViewModel>() {
                         dismissLoading()
                         showErrorToast(secureContext, it.message)
                     }
-                    is SignUpViewModel.Event.ValidationError -> {
-                        showErrorToast(secureContext, it.message)
-                    }
-                    is SignUpViewModel.Event.ShowMissingValuesError -> showErrorToast(
-                        secureContext,
-                        it.error
-                    )
+
                     is SignUpViewModel.Event.UserCreatedSuccess -> {
                         showSuccessToast(secureContext, it.message)
                         dismissLoading()
