@@ -34,10 +34,10 @@ class ItemsFragment : BaseFragment<ItemsFragmentBinding, ItemsViewModel>() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val item = adapter.getItemByPosition(viewHolder.adapterPosition)
                 adapter.removeAt(viewHolder.adapterPosition)
-                if (viewModel.getDataFromDB) {
+                if (viewModel.getDataFromDb) {
                     item?.let { it.id?.let { it1 -> viewModel.deleteItemFromDB(it1) } }
                 } else {
-                    item?.documentId?.let(viewModel::removeItemFromList)
+                    item?.documentId?.let(viewModel::deleteItemFromRemote)
                 }
 
             }
@@ -69,10 +69,10 @@ class ItemsFragment : BaseFragment<ItemsFragmentBinding, ItemsViewModel>() {
         binding.addItemButton.setOnClickListener { showInfoDialog(secureContext, ::getItemDesc) }
         binding.switchDataSource.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                viewModel.getDataFromDB = false
+                viewModel.getDataFromDb = false
                 viewModel.fetchItems()
             } else {
-                viewModel.getDataFromDB = true
+                viewModel.getDataFromDb = true
                 viewModel.fetchItems()
             }
         }

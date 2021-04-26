@@ -19,7 +19,7 @@ class ItemRepositoryImpl(
 
     private val fireStore = Firebase.firestore
 
-    override fun getAllItems(onGetAllItemsListener: ItemRepository.OnGetAllItemsListener) {
+    override fun getAllItemsFromRemote(onGetAllItemsListener: ItemRepository.OnGetAllItemsListener) {
         fireStore.collection(UserRepositoryImpl.ITEMS_COLLECTION_NAME)
             .get()
             .addOnSuccessListener { documents ->
@@ -39,7 +39,7 @@ class ItemRepositoryImpl(
             }
     }
 
-    override fun addItemToList(item: Item, onAddItemListener: ItemRepository.OnAddItemListener) {
+    override fun addItemToRemote(item: Item, onAddItemListener: ItemRepository.OnAddItemListener) {
         try {
             fireStore.collection(UserRepositoryImpl.ITEMS_COLLECTION_NAME).add(item)
                 .addOnSuccessListener { onAddItemListener.onSuccess() }
@@ -53,7 +53,7 @@ class ItemRepositoryImpl(
         }
     }
 
-    override fun removeItemFromList(
+    override fun deleteItemFromRemote(
         documentId: String,
         onRemoveItemListener: ItemRepository.OnRemoveItemListener
     ) {
@@ -71,7 +71,7 @@ class ItemRepositoryImpl(
         }
     }
 
-    override suspend fun insertItemInCache(item: Item) {
+    override suspend fun insertItemInDb(item: Item) {
         return withContext(Dispatchers.IO) {
             dataBase.itemDao().insertItem(
                 ItemEntity(
@@ -81,14 +81,14 @@ class ItemRepositoryImpl(
         }
     }
 
-    override suspend fun getAllItemsFromCache(): List<Item> {
+    override suspend fun getAllItemsFromDb(): List<Item> {
         return withContext(Dispatchers.IO) {
             val list = dataBase.itemDao().getAll()
             list.map { it.toItem() }
         }
     }
 
-    override suspend fun removeItemFromCache(itemId: Int) {
+    override suspend fun deleteItemFromDb(itemId: Int) {
         return withContext(Dispatchers.IO) {
             dataBase.itemDao().deleteItem(
                 itemId

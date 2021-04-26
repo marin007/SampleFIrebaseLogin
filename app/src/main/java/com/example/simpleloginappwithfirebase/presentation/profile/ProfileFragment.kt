@@ -19,7 +19,7 @@ class ProfileFragment : BaseFragment<ProfileFragmentBinding, ProfileViewModel>()
     ): ProfileFragmentBinding {
         return ProfileFragmentBinding.inflate(inflater, container, false)
     }
-
+ 
     override fun subscribeToUiChanges() { }
 
     override fun subscribeToEvents() {

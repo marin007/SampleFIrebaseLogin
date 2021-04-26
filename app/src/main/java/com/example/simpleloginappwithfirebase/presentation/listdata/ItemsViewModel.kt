@@ -15,7 +15,7 @@ class ItemsViewModel(
     private val stringProvider: StringProvider
 ) : ViewModel() {
 
-    var getDataFromDB: Boolean = false
+    var getDataFromDb: Boolean = false
 
     val event: MutableLiveData<ValueWrapper<Event>> by lazy {
         MutableLiveData<ValueWrapper<Event>>()
@@ -32,8 +32,8 @@ class ItemsViewModel(
     private fun insertItemInDB(item: Item) {
         viewModelScope.launch {
             withContext(Dispatchers.Default) {
-                itemRepository.insertItemInCache(
-                    item
+                itemRepository.insertItemInDb(
+                    item = item
                 )
             }
             getAllItemsFromDB()
@@ -42,83 +42,89 @@ class ItemsViewModel(
 
     private fun getAllItemsFromDB() {
         viewModelScope.launch {
-            items.value = itemRepository.getAllItemsFromCache()
+            items.value = itemRepository.getAllItemsFromDb()
         }
+    }
+
+    private fun addItemToRemote (item: Item) {
+        itemRepository.addItemToRemote(item = item, object : ItemRepository.OnAddItemListener {
+            override fun onFail(error: String) {
+                event.value = ValueWrapper(
+                    Event.Error(
+                        error
+                    )
+                )
+            }
+
+            override fun onSuccess() {
+                fetchItems()
+            }
+
+            override fun onNetworkError() {
+                event.value = ValueWrapper(
+                    Event.Error(
+                        stringProvider.getString(
+                            R.string.error_network
+                        )
+                    )
+                )
+            }
+        })
+    }
+
+    private fun getAllItemsFromRemote() {
+        itemRepository.getAllItemsFromRemote(object : ItemRepository.OnGetAllItemsListener {
+            override fun onFail(error: String) {
+                event.value = ValueWrapper(
+                    Event.Error(
+                        error
+                    )
+                )
+            }
+
+            override fun onSuccess(items: List<Item>) {
+                this@ItemsViewModel.items.value = items
+            }
+
+            override fun onNetworkError() {
+                event.value = ValueWrapper(
+                    Event.Error(
+                        stringProvider.getString(
+                            R.string.error_network
+                        )
+                    )
+                )
+            }
+        })
     }
 
     fun deleteItemFromDB(itemId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.Default) {
-                itemRepository.removeItemFromCache(itemId = itemId)
+                itemRepository.deleteItemFromDb(itemId = itemId)
             }
             getAllItemsFromDB()
         }
     }
 
     fun insertItem(item: Item) {
-        if (getDataFromDB) {
-            insertItemInDB(item)
+        if (getDataFromDb) {
+            insertItemInDB(item = item)
         } else {
-            itemRepository.addItemToList(item = item, object : ItemRepository.OnAddItemListener {
-                override fun onFail(error: String) {
-                    event.value = ValueWrapper(
-                        Event.Error(
-                            error
-                        )
-                    )
-                }
-
-                override fun onSuccess() {
-                    fetchItems()
-                }
-
-                override fun onNetworkError() {
-                    event.value = ValueWrapper(
-                        Event.Error(
-                            stringProvider.getString(
-                                R.string.error_network
-                            )
-                        )
-                    )
-                }
-            })
+            addItemToRemote(item = item)
         }
-
     }
 
     fun fetchItems() {
-        if (getDataFromDB) {
+        if (getDataFromDb) {
             getAllItemsFromDB()
         } else {
-            itemRepository.getAllItems(object : ItemRepository.OnGetAllItemsListener {
-                override fun onFail(error: String) {
-                    event.value = ValueWrapper(
-                        Event.Error(
-                            error
-                        )
-                    )
-                }
-
-                override fun onSuccess(items: List<Item>) {
-                    this@ItemsViewModel.items.value = items
-                }
-
-                override fun onNetworkError() {
-                    event.value = ValueWrapper(
-                        Event.Error(
-                            stringProvider.getString(
-                                R.string.error_network
-                            )
-                        )
-                    )
-                }
-            })
+            getAllItemsFromRemote()
         }
-
     }
 
-    fun removeItemFromList(documentId: String) {
-        itemRepository.removeItemFromList(
+    fun deleteItemFromRemote(documentId: String) {
+        itemRepository.deleteItemFromRemote(
             documentId = documentId,
             object : ItemRepository.OnRemoveItemListener {
                 override fun onFail(error: String) {

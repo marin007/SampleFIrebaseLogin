@@ -4,13 +4,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.simpleloginappwithfirebase.R
 import com.example.simpleloginappwithfirebase.domain.common.StringProvider
-import com.example.simpleloginappwithfirebase.domain.entity.itemnote.Item
 import com.example.simpleloginappwithfirebase.domain.repostiory.UserRepository
 import com.example.simpleloginappwithfirebase.presentation.common.ValueWrapper
 import com.example.simpleloginappwithfirebase.presentation.common.isEmailValid
 import com.example.simpleloginappwithfirebase.presentation.common.isPasswordValid
-import com.example.simpleloginappwithfirebase.presentation.listdata.ItemsViewModel
-import com.example.simpleloginappwithfirebase.presentation.signup.SignUpViewModel
 
 class LoginViewModel(
     private val userRepository: UserRepository,

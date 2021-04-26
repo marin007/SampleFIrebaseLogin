@@ -3,17 +3,17 @@ package com.example.simpleloginappwithfirebase.domain.repostiory
 import com.example.simpleloginappwithfirebase.domain.entity.itemnote.Item
 
 interface ItemRepository {
-    fun getAllItems(onGetAllItemsListener: OnGetAllItemsListener)
+    fun getAllItemsFromRemote(onGetAllItemsListener: OnGetAllItemsListener)
 
-    fun addItemToList(item: Item, onAddItemListener: OnAddItemListener)
+    fun addItemToRemote(item: Item, onAddItemListener: OnAddItemListener)
 
-    fun removeItemFromList(documentId: String, onRemoveItemListener: OnRemoveItemListener)
+    fun deleteItemFromRemote(documentId: String, onRemoveItemListener: OnRemoveItemListener)
 
-    suspend fun insertItemInCache(item: Item)
+    suspend fun insertItemInDb(item: Item)
 
-    suspend fun getAllItemsFromCache() : List<Item>
+    suspend fun getAllItemsFromDb() : List<Item>
 
-    suspend fun removeItemFromCache(itemId: Int)
+    suspend fun deleteItemFromDb(itemId: Int)
 
     interface OnGetAllItemsListener {
         fun onSuccess(items: List<Item>)
