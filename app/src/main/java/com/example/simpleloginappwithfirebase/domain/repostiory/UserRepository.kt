@@ -18,8 +18,6 @@ interface UserRepository {
 
     fun addCreatedUser(user: User, onAddCreatedUserListener: OnAddCreatedUserListener)
 
-
-
     interface OnCreateUserListener {
         fun onSuccess()
 
@@ -35,7 +33,6 @@ interface UserRepository {
 
         fun onFail(error: String)
     }
-
 
     interface OnUserLoginListener {
         fun onSuccess(isNewUser: Boolean?)

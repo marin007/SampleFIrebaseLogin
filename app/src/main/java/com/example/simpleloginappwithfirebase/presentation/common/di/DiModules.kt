@@ -38,7 +38,7 @@ val viewModelsModule: Module = module {
 
 val repositoriesModule: Module = module {
     single<UserRepository> { UserRepositoryImpl(get()) }
-    single<ItemRepository> { ItemRepositoryImpl(get(), get()) }
+    single<ItemRepository> { ItemRepositoryImpl(get()) }
 }
 
 val commonModule: Module = module {

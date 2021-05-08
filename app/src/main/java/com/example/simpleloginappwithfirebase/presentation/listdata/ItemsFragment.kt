@@ -44,13 +44,6 @@ class ItemsFragment : BaseFragment<ItemsFragmentBinding, ItemsViewModel>() {
         }
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
-        viewModel.items.observe(this) {
-            val list = mutableListOf<Item>()
-            list.addAll(it)
-            adapter = ItemsAdapter(list)
-            binding.recyclerView.adapter = adapter
-            binding.recyclerView.adapter?.notifyDataSetChanged()
-        }
 
         viewModel.event.observe(this, { event ->
             event.get()?.let {
@@ -67,16 +60,32 @@ class ItemsFragment : BaseFragment<ItemsFragmentBinding, ItemsViewModel>() {
         binding.recyclerView.layoutManager = LinearLayoutManager(secureContext)
         binding.textViewProfile.setOnClickListener { moveToProfileScreen() }
         binding.addItemButton.setOnClickListener { showInfoDialog(secureContext, ::getItemDesc) }
-        binding.switchDataSource.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                viewModel.getDataFromDb = false
-                viewModel.fetchItems()
-            } else {
-                viewModel.getDataFromDb = true
-                viewModel.fetchItems()
+        viewModel.itemsFromRemote.observe(this) {
+            if(!viewModel.getDataFromDb){
+                loadItemsData(it)
             }
         }
+        viewModel.itemsFromDB.observe(this) {
+            if(viewModel.getDataFromDb){
+                loadItemsData(it.map { item -> item.toItem() })
+            }
+        }
+        binding.switchDataSource.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.getDataFromDb = !isChecked
+            if (viewModel.getDataFromDb) {
+                viewModel.itemsFromDB.value?.map { it.toItem() }?.let { loadItemsData(it) }
+            } else {
+                viewModel.itemsFromRemote.value?.let { loadItemsData(it) }
+            }
+        }
+    }
 
+    private fun loadItemsData(items: List<Item>) {
+        val list = mutableListOf<Item>()
+        list.addAll(items)
+        adapter = ItemsAdapter(list)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.adapter?.notifyDataSetChanged()
     }
 
     private fun moveToProfileScreen() {

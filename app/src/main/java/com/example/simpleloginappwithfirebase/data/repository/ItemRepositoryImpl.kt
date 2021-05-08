@@ -1,42 +1,60 @@
 package com.example.simpleloginappwithfirebase.data.repository
 
-import com.example.simpleloginappwithfirebase.R
 import com.example.simpleloginappwithfirebase.data.common.isNetworkError
 import com.example.simpleloginappwithfirebase.data.repository.model.ItemEntity
-import com.example.simpleloginappwithfirebase.domain.common.StringProvider
 import com.example.simpleloginappwithfirebase.domain.entity.itemnote.Item
 import com.example.simpleloginappwithfirebase.domain.repostiory.ItemRepository
-import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
 
 class ItemRepositoryImpl(
-    private val stringProvider: StringProvider,
     private val dataBase: AppDataBase
 ) : ItemRepository {
 
     private val fireStore = Firebase.firestore
 
-    override fun getAllItemsFromRemote(onGetAllItemsListener: ItemRepository.OnGetAllItemsListener) {
-        fireStore.collection(UserRepositoryImpl.ITEMS_COLLECTION_NAME)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    onGetAllItemsListener.onFail(stringProvider.getString(R.string.empty_collection))
-                } else {
+    @ExperimentalCoroutinesApi
+    override fun getAllItemsFromRemote(): Flow<List<Item>> = callbackFlow {
+
+        // Reference to use in Firestore
+        var eventsCollection: CollectionReference? = null
+        try {
+            eventsCollection = fireStore
+                .collection(UserRepositoryImpl.ITEMS_COLLECTION_NAME)
+        } catch (e: Throwable) {
+            // If Firebase cannot be initialized, close the stream of data
+            // flow consumers will stop collecting and the coroutine will resume
+            close(e)
+        }
+
+        // Registers callback to firestore, which will be called on new events
+        val subscription = eventsCollection?.addSnapshotListener { snapshot, _ ->
+            if (snapshot == null) {
+                return@addSnapshotListener
+            }
+            // Sends events to the flow! Consumers will get the new events
+            try {
+                if (!snapshot.isEmpty) {
                     val items = arrayListOf<Item>()
 
-                    for (document in documents) {
+                    for (document in snapshot.documents) {
                         items.add(fromQuery(document))
                     }
-                    onGetAllItemsListener.onSuccess(items)
+                    offer(items)
                 }
+
+            } catch (e: Throwable) {
+                // Event couldn't be sent to the flow
             }
-            .addOnFailureListener { exception ->
-                onGetAllItemsListener.onFail(exception.message.orEmpty())
-            }
+        }
+        awaitClose { subscription?.remove() }
     }
 
     override fun addItemToRemote(item: Item, onAddItemListener: ItemRepository.OnAddItemListener) {
@@ -71,35 +89,28 @@ class ItemRepositoryImpl(
         }
     }
 
-    override suspend fun insertItemInDb(item: Item) {
-        return withContext(Dispatchers.IO) {
-            dataBase.itemDao().insertItem(
-                ItemEntity(
-                    description = item.description
-                )
+    override suspend fun insertItemInDb(item: Item) = withContext(Dispatchers.IO) {
+        dataBase.itemDao().insertItem(
+            ItemEntity(
+                description = item.description
             )
-        }
+        )
     }
 
-    override suspend fun getAllItemsFromDb(): List<Item> {
-        return withContext(Dispatchers.IO) {
-            val list = dataBase.itemDao().getAll()
-            list.map { it.toItem() }
-        }
+    override fun getAllItemsFromDb(): Flow<List<ItemEntity>> {
+        return dataBase.itemDao().getAll()
     }
 
-    override suspend fun deleteItemFromDb(itemId: Int) {
-        return withContext(Dispatchers.IO) {
-            dataBase.itemDao().deleteItem(
-                itemId
-            )
-        }
+    override suspend fun deleteItemFromDb(itemId: Int) = withContext(Dispatchers.IO) {
+        dataBase.itemDao().deleteItem(
+            itemId
+        )
     }
 
-    private fun fromQuery(document: QueryDocumentSnapshot): Item {
+    private fun fromQuery(document: DocumentSnapshot): Item {
         return Item(
             documentId = document.id,
-            description = (document.data[UserRepositoryImpl.KEY_ITEM_DESCRIPTION] as String)
+            description = (document.data?.get(UserRepositoryImpl.KEY_ITEM_DESCRIPTION) as String)
         )
     }
 }
