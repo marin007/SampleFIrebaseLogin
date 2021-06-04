@@ -60,12 +60,12 @@ class ItemsFragment : BaseFragment<ItemsFragmentBinding, ItemsViewModel>() {
         binding.recyclerView.layoutManager = LinearLayoutManager(secureContext)
         binding.textViewProfile.setOnClickListener { moveToProfileScreen() }
         binding.addItemButton.setOnClickListener { showInfoDialog(secureContext, ::getItemDesc) }
-        viewModel.itemsFromRemote.observe(this) {
+        viewModel.itemsFromRemote.observe(viewLifecycleOwner) {
             if(!viewModel.getDataFromDb){
                 loadItemsData(it)
             }
         }
-        viewModel.itemsFromDB.observe(this) {
+        viewModel.itemsFromDB.observe(viewLifecycleOwner) {
             if(viewModel.getDataFromDb){
                 loadItemsData(it.map { item -> item.toItem() })
             }

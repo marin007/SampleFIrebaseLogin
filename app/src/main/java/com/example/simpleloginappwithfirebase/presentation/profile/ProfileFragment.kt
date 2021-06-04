@@ -23,7 +23,7 @@ class ProfileFragment : BaseFragment<ProfileFragmentBinding, ProfileViewModel>()
     override fun subscribeToUiChanges() { }
 
     override fun subscribeToEvents() {
-        viewModel.loggedEmail.observe(this) {
+        viewModel.loggedEmail.observe(viewLifecycleOwner) {
             it?.let {
                 binding.textViewUserEmail.text = it
             }

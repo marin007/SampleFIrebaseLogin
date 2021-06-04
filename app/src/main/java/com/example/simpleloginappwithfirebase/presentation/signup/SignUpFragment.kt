@@ -25,7 +25,7 @@ class SignUpFragment : BaseFragment<SignUpFragmentBinding, SignUpViewModel>() {
     }
 
     override fun subscribeToUiChanges() {
-        viewModel.uiState.observe(this, { uiState ->
+        viewModel.uiState.observe(viewLifecycleOwner, { uiState ->
             when (uiState) {
                 is SignUpViewModel.UiState.Loading -> showLoading()
                 is SignUpViewModel.UiState.ValidationError -> showErrorToast(
@@ -38,7 +38,7 @@ class SignUpFragment : BaseFragment<SignUpFragmentBinding, SignUpViewModel>() {
 
     override fun subscribeToEvents() {
 
-        viewModel.event.observe(this, { event ->
+        viewModel.event.observe(viewLifecycleOwner, { event ->
             event.get()?.let {
                 when (it) {
                     is SignUpViewModel.Event.Error -> {

@@ -25,7 +25,7 @@ class LoginFragment : BaseFragment<LoginFragmentBinding, LoginViewModel> () {
     }
 
     override fun subscribeToUiChanges() {
-        viewModel.uiState.observe(this, { uiState ->
+        viewModel.uiState.observe(viewLifecycleOwner, { uiState ->
             when(uiState) {
                 is LoginViewModel.UiState.InvalidEmail -> showInvalidEmail()
                 is LoginViewModel.UiState.InvalidPassword -> showInvalidPassword()
@@ -37,7 +37,7 @@ class LoginFragment : BaseFragment<LoginFragmentBinding, LoginViewModel> () {
 
     override fun subscribeToEvents() {
 
-        viewModel.event.observe(this, { event ->
+        viewModel.event.observe(viewLifecycleOwner, { event ->
             event.get()?.let {
                 when (it) {
                     is LoginViewModel.Event.LoginSuccess -> if(it.isNewUser == true) moveToWelcomeScreen() else moveToItemsScreen()
